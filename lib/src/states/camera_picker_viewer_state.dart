@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart';
 import 'package:path/path.dart' as path;
 import 'package:awesome_video_player/awesome_video_player.dart';
@@ -69,8 +70,53 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
       previewFile.path,
     );
     final BetterPlayerConfiguration configuration = const BetterPlayerConfiguration(
-      autoPlay: false,
-      looping: false,
+      fit: BoxFit.contain,
+        autoPlay: true,
+        looping: false,
+        fullScreenByDefault: false,
+        allowedScreenSleep: false,
+        expandToFill: true, // 关键：让播放器扩展填充所有可用空间
+        deviceOrientationsOnFullScreen: [
+          DeviceOrientation.landscapeLeft,
+          DeviceOrientation.landscapeRight,
+        ],
+        deviceOrientationsAfterFullScreen: [
+          DeviceOrientation.portraitUp,
+          DeviceOrientation.portraitDown,
+        ],
+        controlsConfiguration: const BetterPlayerControlsConfiguration(
+          showControls: true,
+          showControlsOnInitialize: false, // 初始化时就显示控制栏
+          // controlBarColor: Colors.transparent, // 移除控制栏背景
+          // backgroundColor: Colors.transparent, // 移除播放按钮的灰色蒙版
+          iconsColor: Colors.white,
+          progressBarPlayedColor: Color(0xFF2467FF),
+          progressBarHandleColor: Color(0xFF2467FF),
+          progressBarBufferedColor: Colors.grey,
+          progressBarBackgroundColor: Colors.grey,
+          textColor: Colors.white,
+          enableFullscreen: true,
+          enableMute: true,
+          enablePlayPause: true,
+          enableProgressText: true,
+          enableRetry: true,
+          enableSubtitles: true,
+          enableQualities: true,
+          enablePip: false,
+          enableOverflowMenu: false,
+          enableSkips: false,
+          controlBarHeight: 48,
+          playIcon: Icons.play_arrow,
+          pauseIcon: Icons.pause,
+          muteIcon: Icons.volume_up,
+          fullscreenEnableIcon: Icons.fullscreen,
+          fullscreenDisableIcon: Icons.fullscreen_exit,
+          overflowMenuIcon: Icons.more_vert,
+          playbackSpeedIcon: Icons.speed,
+          subtitlesIcon: Icons.subtitles,
+          qualitiesIcon: Icons.high_quality,
+          controlsHideTime: Duration(seconds: 0),
+        ),
     );
     videoController = BetterPlayerController(
       configuration,
@@ -280,7 +326,7 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
     if (widget.viewType == CameraPickerViewType.video) {
       builder = Stack(
         children: <Widget>[
-          Center(
+          SizedBox.expand(
             child: BetterPlayer(
               controller: videoController,
             ),
