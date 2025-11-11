@@ -93,7 +93,7 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
           DeviceOrientation.portraitDown,
         ],
         controlsConfiguration: const BetterPlayerControlsConfiguration(
-          showControls: true,
+          showControls: false,
           showControlsOnInitialize: false, // 初始化时就显示控制栏
           // controlBarColor: Colors.transparent, // 移除控制栏背景
           // backgroundColor: Colors.transparent, // 移除播放按钮的灰色蒙版
