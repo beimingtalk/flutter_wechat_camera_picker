@@ -58,7 +58,7 @@ class _PreviewAssetWidgetState extends State<PreviewAssetWidget> {
         );
       }
       final BetterPlayerConfiguration configuration = const BetterPlayerConfiguration(
-        fit: BoxFit.contain,
+        fit: BoxFit.contain, // 改为 cover 以填充整个屏幕
         autoPlay: true,
         looping: false,
         fullScreenByDefault: false,
@@ -129,8 +129,10 @@ class _PreviewAssetWidgetState extends State<PreviewAssetWidget> {
     if (controller == null) {
       return const CircularProgressIndicator();
     }
-    return BetterPlayer(
-      controller: controller,
+    return SizedBox.expand(
+      child: BetterPlayer(
+        controller: controller,
+      ),
     );
   }
 
