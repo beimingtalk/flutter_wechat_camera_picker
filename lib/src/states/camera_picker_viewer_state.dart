@@ -55,32 +55,40 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
 
   CameraErrorHandler? get onError => pickerConfig.onError;
 
+  /// Whether the video controller has been initialized.
+  /// 视频控制器是否已初始化
+  bool _videoControllerInitialized = false;
+
   @override
   void initState() {
     super.initState();
-    if (widget.viewType == CameraPickerViewType.video) {
-      _initializeVideoController();
-      initializeVideoPlayerController();
-    }
   }
 
-  void _initializeVideoController() {
+  void _initializeVideoController(BuildContext context) {
+    if (_videoControllerInitialized) {
+      return;
+    }
+    _videoControllerInitialized = true;
+    
     final BetterPlayerDataSource dataSource = BetterPlayerDataSource(
       BetterPlayerDataSourceType.file,
       previewFile.path,
     );
-    final BetterPlayerConfiguration configuration = const BetterPlayerConfiguration(
+    final screenSize = MediaQuery.of(context).size;
+    final screenAspectRatio = screenSize.width / screenSize.height;
+    final BetterPlayerConfiguration configuration = BetterPlayerConfiguration(
+      aspectRatio: screenAspectRatio, // 设置为屏幕宽高比，让视频填充整个屏幕
       fit: BoxFit.contain,
         autoPlay: true,
         looping: false,
         fullScreenByDefault: false,
         allowedScreenSleep: false,
-        expandToFill: true, // 关键：让播放器扩展填充所有可用空间
-        deviceOrientationsOnFullScreen: [
+        expandToFill: false, // 改为 false，因为我们已经通过 aspectRatio 控制大小
+        deviceOrientationsOnFullScreen: const [
           DeviceOrientation.landscapeLeft,
           DeviceOrientation.landscapeRight,
         ],
-        deviceOrientationsAfterFullScreen: [
+        deviceOrientationsAfterFullScreen: const [
           DeviceOrientation.portraitUp,
           DeviceOrientation.portraitDown,
         ],
@@ -115,7 +123,7 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
           playbackSpeedIcon: Icons.speed,
           subtitlesIcon: Icons.subtitles,
           qualitiesIcon: Icons.high_quality,
-          controlsHideTime: Duration(seconds: 0),
+          controlsHideTime: Duration.zero,
         ),
     );
     videoController = BetterPlayerController(
@@ -126,7 +134,7 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
 
   @override
   void dispose() {
-    if (widget.viewType == CameraPickerViewType.video) {
+    if (widget.viewType == CameraPickerViewType.video && _videoControllerInitialized) {
       videoController.pause();
       videoController.dispose(forceDispose: true);
     }
@@ -449,6 +457,12 @@ class CameraPickerViewerState extends State<CameraPickerViewer> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize video controller in build method to access MediaQuery
+    if (widget.viewType == CameraPickerViewType.video && !_videoControllerInitialized) {
+      _initializeVideoController(context);
+      initializeVideoPlayerController();
+    }
+    
     if (hasErrorWhenInitializing) {
       return Center(
         child: Text(
